@@ -5,7 +5,12 @@ export async function listCampaigns() {
   const db = getDb();
   if (!db) return CAMPAIGNS;
 
-  const rows = await db.select().from(schema.campaigns);
-  if (rows.length === 0) return CAMPAIGNS;
-  return rows;
+  try {
+    const rows = await db.select().from(schema.campaigns);
+    if (rows.length === 0) return CAMPAIGNS;
+    return rows;
+  } catch (error) {
+    console.error("listCampaigns failed, using mock data:", error);
+    return CAMPAIGNS;
+  }
 }

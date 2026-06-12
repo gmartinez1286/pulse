@@ -9,7 +9,12 @@ let db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 export function getDb() {
   if (!connectionString) return null;
   if (!db) {
-    const client = postgres(connectionString, { prepare: false });
+    const client = postgres(connectionString, {
+      prepare: false,
+      max: 1,
+      idle_timeout: 20,
+      connect_timeout: 10,
+    });
     db = drizzle(client, { schema });
   }
   return db;
