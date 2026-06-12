@@ -13,7 +13,6 @@ export function ScoreCard({ delay = 0.05 }: { delay?: number }) {
     const duration = 1300;
     const startDelay = 150;
     let frame = 0;
-    let timeout: ReturnType<typeof setTimeout>;
 
     const animate = () => {
       const t0 = performance.now();
@@ -28,7 +27,7 @@ export function ScoreCard({ delay = 0.05 }: { delay?: number }) {
       frame = requestAnimationFrame(tick);
     };
 
-    timeout = setTimeout(animate, startDelay);
+    const timeout = setTimeout(animate, startDelay);
     return () => {
       clearTimeout(timeout);
       cancelAnimationFrame(frame);
