@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  background: #f4f6fa;
+  color: #1a1f36;
+  font-size: 14.5px;
+}
+
+.gradient-bar {
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    #635bff 0%,
+    #9d8cff 30%,
+    #11efe3 65%,
+    #ffd848 100%
+  );
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+
+.col-span-2 {
+  grid-column: span 2;
+}
+.col-span-3 {
+  grid-column: span 3;
+}
+.col-span-4 {
+  grid-column: span 4;
+}
+.col-span-5 {
+  grid-column: span 5;
+}
+.col-span-6 {
+  grid-column: span 6;
+}
+.col-span-7 {
+  grid-column: span 7;
+}
+.col-span-8 {
+  grid-column: span 8;
+}
+.col-span-12 {
+  grid-column: span 12;
+}
+
+@media (max-width: 1280px) {
+  .col-span-2 {
+    grid-column: span 4;
+  }
+  .col-span-3,
+  .col-span-4 {
+    grid-column: span 6;
+  }
+  .col-span-5,
+  .col-span-6,
+  .col-span-7,
+  .col-span-8 {
+    grid-column: span 12;
+  }
+}
+
+@media (max-width: 760px) {
+  .col-span-2,
+  .col-span-3,
+  .col-span-4 {
+    grid-column: span 12;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

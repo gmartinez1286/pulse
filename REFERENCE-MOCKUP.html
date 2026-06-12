@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse — v7 Full App (all pages · light · KPOT Fairfax)</title>
+<style>
+  :root{
+    --accent:#635BFF; --accent-soft:#EEEDFF; --accent-text:#5851E8;
+    --teal:#00B8AC; --gold:#D4A017; --pink:#E84393;
+    --bg:#F4F6FA; --side:#FFFFFF; --card:#FFFFFF; --card2:#F8F9FC;
+    --ink:#1A1F36; --muted:#697386; --line:#E3E8EE; --line2:#D5DCE6;
+    --green:#0E8745; --green-soft:#E6F6EC; --red:#CD3D64; --red-soft:#FBE9EE;
+    --warn:#9A6700; --warn-soft:#FFF4E0; --gray-soft:#F1F3F5;
+    --fb:#1877F2; --fb-soft:#E7F0FE; --ig:#D6336C; --ig-soft:#FDEBF1;
+    --shadow:0 1px 2px rgba(26,31,54,.06), 0 6px 20px rgba(26,31,54,.06);
+    --chartfill-a:rgba(99,91,255,.20); --chartfill-b:rgba(99,91,255,0);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Inter',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink); font-size:14.5px;}
+  .gradientbar{height:3px; background:linear-gradient(90deg,#635BFF 0%,#9D8CFF 30%,#11EFE3 65%,#FFD848 100%); position:fixed; top:0; left:0; right:0; z-index:99;}
+  @keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;}}
+  .rv{opacity:0; animation:rise .55s cubic-bezier(.2,.7,.3,1) forwards;}
+  .shell{display:flex; min-height:100vh;}
+
+  /* ===== SIDEBAR ===== */
+  .side{width:248px; background:var(--side); border-right:1px solid var(--line); padding:20px 14px 18px; display:flex; flex-direction:column; position:sticky; top:0; height:100vh; overflow-y:auto; transition:width .25s ease; flex-shrink:0;}
+  .side::-webkit-scrollbar{width:0;}
+  .sidehead{display:flex; align-items:center; gap:10px; padding:2px 10px 20px;}
+  .sidehead .logoimg{height:34px; display:block;}
+  .sidehead .mark{width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg,#635BFF,#9D8CFF); color:#fff; font-weight:700; display:none; align-items:center; justify-content:center; font-size:15px; flex-shrink:0;}
+  body.collapsed .sidehead .logoimg{display:none;}
+  body.collapsed .sidehead .mark{display:flex;}
+  .collapsebtn{margin-left:auto; border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:16px; padding:4px 6px; border-radius:6px;}
+  .collapsebtn:hover{background:var(--gray-soft); color:var(--ink);}
+  .nav{display:flex; flex-direction:column; gap:3px;}
+  .nav a{display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; color:var(--ink); text-decoration:none; font-weight:500; font-size:13.5px; cursor:pointer; white-space:nowrap;}
+  .nav a .ic{width:20px; text-align:center; font-size:15px; opacity:.8; flex-shrink:0;}
+  .nav a.active{background:var(--gray-soft); font-weight:600;}
+  .nav a:hover:not(.active){background:var(--gray-soft); opacity:.85;}
+  .nav a .chev{margin-left:auto; color:var(--muted); font-size:11px;}
+  .nav a .tag{margin-left:auto; font-size:9px; font-weight:700; letter-spacing:.7px; background:var(--accent-soft); color:var(--accent-text); border-radius:10px; padding:3px 8px; text-transform:uppercase;}
+  .grouphead{display:flex; align-items:center; padding:18px 12px 8px; font-size:10px; letter-spacing:1.3px; text-transform:uppercase; color:var(--muted); font-weight:700; white-space:nowrap;}
+  .grouphead .car{margin-right:7px; font-size:8px;}
+  .grouphead .plus{margin-left:auto; cursor:pointer; font-size:13px; color:var(--muted);}
+  .grouphead .newchip{margin-left:auto; font-size:9px; font-weight:700; background:var(--accent-soft); color:var(--accent-text); border-radius:9px; padding:2.5px 8px; letter-spacing:.5px;}
+  .pficon{width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:700; flex-shrink:0;}
+  .pficon.fb{background:#1877F2;}
+  .pficon.ig{background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF);}
+  .side .spacer{flex:1; min-height:18px;}
+  .workspace{border:1px solid var(--line); border-radius:11px; padding:11px 13px; white-space:nowrap; overflow:hidden;}
+  .workspace .k{font-size:10px; letter-spacing:.8px; text-transform:uppercase; color:var(--muted); font-weight:700;}
+  .workspace .v{font-weight:600; font-size:13px; margin-top:3px;}
+  .syncline{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--muted); padding:12px 12px 0; white-space:nowrap;}
+  .syncline .dot{width:7px; height:7px; border-radius:50%; background:var(--green); flex-shrink:0;}
+  body.collapsed .side{width:74px; padding:20px 11px 18px;}
+  body.collapsed .nav a .tag, body.collapsed .nav a .chev,
+  body.collapsed .grouphead, body.collapsed .workspace, body.collapsed .syncline,
+  body.collapsed .nav a .lbl{display:none;}
+  body.collapsed .sidehead{justify-content:center; padding-bottom:16px;}
+  body.collapsed .collapsebtn{margin:0; position:absolute; top:62px; left:50%; transform:translateX(-50%);}
+  body.collapsed .nav a{justify-content:center; padding:10px 0;}
+
+  /* ===== MAIN ===== */
+  .main{flex:1; padding:24px 30px 10px; min-width:0;}
+  .topbar{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:20px;}
+  .crumb{font-size:12.5px; color:var(--muted); font-weight:500;}
+  .crumb b{color:var(--ink); font-weight:650; font-size:18px; display:block; letter-spacing:-.2px; margin-top:2px;}
+  .livechip{display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:700; letter-spacing:.8px; color:var(--green); background:var(--green-soft); padding:5px 11px; border-radius:20px;}
+  .livechip .dot{width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(14,135,69,.3)}70%{box-shadow:0 0 0 7px rgba(14,135,69,0)}100%{box-shadow:0 0 0 0 rgba(14,135,69,0)}}
+  .topbar .right{margin-left:auto; display:flex; align-items:center; gap:10px;}
+  .seg{display:flex; background:var(--gray-soft); border-radius:9px; padding:3px;}
+  .seg button{border:0; background:transparent; padding:7px 13px; border-radius:7px; cursor:pointer; font-weight:600; font-size:12.5px; color:var(--muted);}
+  .seg button.active{background:var(--card); color:var(--ink); box-shadow:var(--shadow);}
+  .btn{border:1px solid var(--line); background:var(--card); border-radius:8px; padding:8px 14px; font-weight:600; font-size:12.5px; cursor:pointer; color:var(--ink); box-shadow:var(--shadow);}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+
+  .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:16px;}
+  .c2{grid-column:span 2;} .c3{grid-column:span 3;} .c4{grid-column:span 4;}
+  .c5{grid-column:span 5;} .c6{grid-column:span 6;} .c7{grid-column:span 7;} .c8{grid-column:span 8;} .c12{grid-column:span 12;}
+  @media (max-width:1280px){ .c2{grid-column:span 4;} .c3,.c4{grid-column:span 6;} .c5,.c6,.c7,.c8{grid-column:span 12;} }
+  @media (max-width:760px){ .c2,.c3,.c4{grid-column:span 12;} }
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:19px 21px; box-shadow:var(--shadow);}
+  .cardhead{display:flex; align-items:flex-start; gap:10px; margin-bottom:13px;}
+  .card h3{font-size:14px; font-weight:600; letter-spacing:-.1px;}
+  .card .cap{color:var(--muted); font-size:11.5px; margin-top:2px;}
+  .pill{margin-left:auto; font-size:10px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--accent-text); background:var(--accent-soft); border-radius:6px; padding:4px 9px; white-space:nowrap;}
+
+  .scorecard{display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; background:linear-gradient(160deg,var(--card),var(--card2));}
+  .scorecard .k{font-size:10.5px; letter-spacing:1.4px; text-transform:uppercase; color:var(--muted); font-weight:700;}
+  .ring{position:relative; width:140px; height:140px; margin:13px 0 9px;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring .num{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .ring .num b{font-size:38px; font-weight:650; letter-spacing:-1px;}
+  .ring .num span{font-size:10px; color:var(--muted); font-weight:700;}
+  .verdict{font-size:12px; font-weight:600; color:var(--green); background:var(--green-soft); border-radius:18px; padding:4px 12px;}
+  .why{font-size:10.5px; color:var(--muted); margin-top:9px; line-height:1.5;}
+
+  .bigrow{display:flex; gap:30px; flex-wrap:wrap; margin-bottom:8px;}
+  .bignum .k{font-size:11px; color:var(--muted); font-weight:600;}
+  .bignum .v{font-size:28px; font-weight:600; letter-spacing:-.6px; font-variant-numeric:tabular-nums; margin-top:2px;}
+  .bignum .d{font-size:11px; font-weight:600; margin-top:2px;}
+  .d.up{color:var(--green);} .d.down{color:var(--red);}
+  .legendrow{display:flex; gap:18px; font-size:11px; color:var(--muted); font-weight:600; margin-bottom:5px;}
+  .legendrow .sw{display:inline-block; width:14px; height:3px; border-radius:2px; background:var(--accent); margin-right:6px; vertical-align:3px;}
+  .legendrow .sw.dotted{background:none; border-top:2px dotted var(--muted); height:0;}
+  .chartzone{position:relative;}
+  .tooltip{position:absolute; pointer-events:none; background:var(--card2); border:1px solid var(--line2); border-radius:9px; padding:8px 11px; font-size:11.5px; box-shadow:var(--shadow); display:none; z-index:10; min-width:130px;}
+  .tooltip .tdate{color:var(--muted); font-weight:600; font-size:10.5px; margin-bottom:4px;}
+
+  .insightcard .i{font-size:12px; line-height:1.55; padding:10px 0; border-bottom:1px solid var(--line); display:flex; gap:9px;}
+  .insightcard .i:last-of-type{border-bottom:0;}
+  .insightcard .i b{color:var(--accent-text); font-weight:600;}
+  .insightcard .badge3{width:22px; height:22px; border-radius:7px; background:var(--accent-soft); color:var(--accent-text); display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; font-weight:700;}
+
+  .kpi .label{font-size:10.5px; font-weight:600; color:var(--muted);}
+  .kpi .val{font-size:20px; font-weight:600; margin-top:4px; letter-spacing:-.3px; font-variant-numeric:tabular-nums;}
+  .kpi .delta{font-size:11px; font-weight:600; margin-top:2px;}
+  .kpi .delta.up{color:var(--green);} .kpi .delta.down{color:var(--red);}
+  .kpi .sp{margin-top:8px;}
+  .kpi .icon{width:32px; height:32px; border-radius:9px; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; font-size:15px; margin-bottom:8px;}
+
+  .funnel{display:flex; flex-direction:column; gap:7px;}
+  .fstage{display:grid; grid-template-columns:150px 1fr 105px; align-items:center; gap:14px;}
+  .fstage .nm{font-size:11.5px; font-weight:600; color:var(--muted);}
+  .fstage .nm b{display:block; color:var(--ink); font-size:15px; font-weight:600; font-variant-numeric:tabular-nums;}
+  .fbarwrap{height:32px; background:var(--gray-soft); border-radius:9px; overflow:hidden; position:relative;}
+  .fbar{height:100%; border-radius:9px; width:0; transition:width 1.1s cubic-bezier(.2,.7,.2,1); display:flex; align-items:center; padding-left:12px; font-size:11px; font-weight:600; color:#fff; white-space:nowrap;}
+  .fconv{font-size:11.5px; font-weight:600; text-align:right; color:var(--accent-text);}
+  .fconv small{display:block; color:var(--muted); font-weight:500;}
+  .foffline{border:1px dashed var(--warn); border-radius:9px;}
+
+  .splitrow{display:flex; align-items:center; gap:18px;}
+  .dlegend{flex:1; min-width:0;}
+  .dlegend .row{display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); font-size:12px;}
+  .dlegend .row:last-child{border-bottom:0;}
+  .dlegend .dotc{width:10px; height:10px; border-radius:3px; flex-shrink:0;}
+  .dlegend .row b{margin-left:auto; font-variant-numeric:tabular-nums; white-space:nowrap; font-weight:600;}
+  .dlegend .row small{color:var(--muted); line-height:1.4;}
+
+  .hbar{margin-bottom:12px;}
+  .hbar:last-child{margin-bottom:0;}
+  .hbar .t{display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:5px;}
+  .hbar .track{height:10px; background:var(--gray-soft); border-radius:6px; position:relative;}
+  .hbar .fill{height:100%; border-radius:6px; width:0; transition:width 1s cubic-bezier(.2,.7,.2,1); background:linear-gradient(90deg,var(--accent),#9D8CFF);}
+  .benchline{position:absolute; top:-5px; bottom:-5px; width:2px; background:var(--gold);}
+  .benchnote{font-size:10.5px; color:var(--muted); margin-top:8px;}
+  .benchnote i{display:inline-block; width:10px; height:2px; background:var(--gold); vertical-align:3px; margin-right:5px;}
+
+  .heat{display:grid; grid-template-columns:44px repeat(6,1fr); gap:5px; font-size:10.5px;}
+  .heat .hlab{color:var(--muted); font-weight:600; display:flex; align-items:center;}
+  .heat .hcol{color:var(--muted); font-weight:600; text-align:center; padding-bottom:2px;}
+  .heat .cell{height:25px; border-radius:6px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:600; color:transparent;}
+  .heat .cell:hover{color:#fff; outline:1.5px solid var(--accent-text);}
+  .heat .best{outline:2px solid var(--gold); color:var(--ink);}
+  .heatnote{font-size:11px; color:var(--muted); margin-top:10px;}
+  .heatnote b{color:var(--gold); font-weight:600;}
+
+  .gauge{margin-bottom:15px;}
+  .gauge:last-child{margin-bottom:0;}
+  .gauge .t{display:flex; justify-content:space-between; align-items:baseline; font-size:12px; font-weight:600; margin-bottom:6px;}
+  .gauge .t small{color:var(--muted); font-weight:500;}
+  .gauge .track{height:13px; background:var(--gray-soft); border-radius:8px; position:relative; overflow:hidden;}
+  .gauge .fill{height:100%; border-radius:8px; width:0; transition:width 1.2s cubic-bezier(.2,.7,.2,1); background:linear-gradient(90deg,var(--accent),var(--teal));}
+  .gauge .pacer{position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--ink); opacity:.5;}
+  .gauge .status{font-size:10.5px; font-weight:600; margin-top:5px;}
+
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th{font-size:10px; letter-spacing:.8px; text-transform:uppercase; color:var(--muted); text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); font-weight:600;}
+  td{padding:10px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:0;}
+  td.num, th.num{text-align:right;}
+  td.metricname{font-weight:600;}
+  tfoot td{font-weight:600; border-top:1px solid var(--line);}
+  .dchip{display:inline-block; font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:12px;}
+  .dchip.up{background:var(--green-soft); color:var(--green);}
+  .dchip.down{background:var(--red-soft); color:var(--red);}
+  tbody tr:hover td{background:var(--gray-soft);}
+  tr.selectable{cursor:pointer;} tr.selected td{background:var(--accent-soft);}
+  .campname{font-weight:600;}
+  .campname small{display:block; color:var(--muted); font-weight:500; margin-top:2px; font-size:11.5px;}
+  .badge{display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:6px;}
+  .badge.run{background:var(--green-soft); color:var(--green);}
+  .badge.end{background:var(--gray-soft); color:var(--muted);}
+  .badge.p2{background:var(--accent-soft); color:var(--accent-text);}
+  .badge.pend{background:var(--warn-soft); color:var(--warn);}
+  .pf{display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; padding:2px 7px; border-radius:5px;}
+  .pf.fb{background:var(--fb-soft); color:var(--fb);}
+  .pf.ig{background:var(--ig-soft); color:var(--ig);}
+  .postthumb{width:42px; height:42px; border-radius:9px; background:linear-gradient(135deg,var(--accent-soft),var(--gray-soft)); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;}
+  .adthumb{width:44px; height:44px; border-radius:8px; background:linear-gradient(135deg,var(--accent-soft),var(--gray-soft)); display:flex; align-items:center; justify-content:center; font-size:17px;}
+  .linkcell{font-family:'JetBrains Mono',Consolas,monospace; font-size:11.5px; color:var(--accent-text);}
+  .minibtn{border:1px solid var(--line); background:var(--card); border-radius:7px; padding:4px 10px; font-size:11.5px; cursor:pointer; font-weight:600; color:var(--ink);}
+  .minibtn.danger{color:var(--red);}
+  .minibtn.on{background:var(--accent-soft); color:var(--accent-text); border-color:transparent;}
+  .health{list-style:none;}
+  .health li{display:flex; justify-content:space-between; padding:9px 2px; border-bottom:1px solid var(--line); font-size:12.5px;}
+  .health li:last-child{border-bottom:0;}
+  .health .k{color:var(--muted);}
+  .health .v{font-weight:600; text-align:right;}
+  .health .ok{color:var(--green);} .health .warn{color:var(--warn);}
+
+  .topposts{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  @media (max-width:920px){.topposts{grid-template-columns:1fr;}}
+  .post{border:1px solid var(--line); border-radius:13px; padding:14px 16px; background:var(--card2); transition:transform .2s, box-shadow .2s;}
+  .post:hover{transform:translateY(-3px); box-shadow:var(--shadow);}
+  .post .head{display:flex; align-items:center; gap:11px; margin-bottom:8px;}
+  .post .thumb{width:44px; height:44px; border-radius:11px; background:linear-gradient(135deg,var(--accent-soft),var(--gray-soft)); display:flex; align-items:center; justify-content:center; font-size:20px;}
+  .post .date{font-size:10.5px; color:var(--muted); font-weight:600;}
+  .post .title{font-weight:600; font-size:12.5px; margin-top:2px; line-height:1.35;}
+  .post .stats{display:flex; gap:12px; font-size:11.5px; color:var(--muted); font-weight:500; margin-top:6px; flex-wrap:wrap;}
+  .post .er{margin-left:auto; color:var(--green); font-weight:600;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:11.5px; font-weight:600; color:var(--muted); margin-bottom:6px;}
+  .field input, .field select{width:100%; border:1px solid var(--line); background:var(--bg); color:var(--ink); border-radius:8px; padding:9px 12px; font-size:13.5px; font-family:inherit;}
+  .switchrow{display:flex; align-items:center; justify-content:space-between; padding:11px 2px; border-bottom:1px solid var(--line); font-size:13px;}
+  .switchrow:last-child{border-bottom:0;}
+  .switchrow .k b{display:block; font-weight:600;} .switchrow .k small{color:var(--muted);}
+  .switch{width:38px; height:22px; border-radius:20px; background:var(--green); position:relative; cursor:pointer; flex-shrink:0;}
+  .switch.off{background:var(--line2);}
+  .switch::after{content:''; position:absolute; width:18px; height:18px; border-radius:50%; background:#fff; top:2px; right:2px;}
+  .switch.off::after{right:auto; left:2px;}
+  .swatches{display:flex; gap:8px;}
+  .swatch{width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent;}
+  .swatch.sel{border-color:var(--ink);}
+
+  /* pricing tiers */
+  .tier{border:1px solid var(--line); border-radius:14px; padding:20px; text-align:center; background:var(--card2);}
+  .tier.feature{border-color:var(--accent); background:var(--accent-soft);}
+  .tier .nm{font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);}
+  .tier .pr{font-size:30px; font-weight:650; margin:10px 0 2px; letter-spacing:-.8px;}
+  .tier .pr small{font-size:12px; color:var(--muted); font-weight:500;}
+  .tier ul{list-style:none; margin-top:12px; text-align:left;}
+  .tier li{font-size:12px; padding:6px 0; border-bottom:1px solid var(--line); color:var(--muted);}
+  .tier li:last-child{border-bottom:0;}
+  .tier li b{color:var(--ink); font-weight:600;}
+
+  .footnote{color:var(--muted); font-size:11.5px; text-align:center; padding:16px 0 28px;}
+  .footnote b{color:var(--accent-text); font-weight:600;}
+  .page{display:none;} .page.active{display:block;}
+  @media print{ .side, .topbar .right, .gradientbar{display:none!important;} body{background:#fff;} }
+</style>
+</head>
+<body>
+<div class="gradientbar"></div>
+
+<div class="shell">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="side">
+    <div class="sidehead">
+      <img class="logoimg" src="data:image/png;base64,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" alt="Pulse">
+      <div class="mark">P</div>
+      <button class="collapsebtn" onclick="document.body.classList.toggle('collapsed')" title="Collapse sidebar">◫</button>
+    </div>
+    <nav class="nav">
+      <a id="nav-overview" class="active" onclick="showPage('overview')"><span class="ic">⌂</span><span class="lbl">Overview</span></a>
+      <a id="nav-content" onclick="showPage('content')"><span class="ic">📈</span><span class="lbl">Content Performance</span></a>
+      <a id="nav-audience" onclick="showPage('audience')"><span class="ic">👥</span><span class="lbl">Audience Insights</span></a>
+      <a id="nav-engagement" onclick="showPage('engagement')"><span class="ic">◎</span><span class="lbl">Engagement Tracker</span></a>
+      <a id="nav-campaigns" onclick="showPage('campaigns')"><span class="ic">▤</span><span class="lbl">Campaign Reports</span></a>
+      <a id="nav-exports" onclick="showPage('exports')"><span class="ic">⇪</span><span class="lbl">Export Center</span></a>
+    </nav>
+    <div class="grouphead"><span class="car">▼</span>Platforms<span class="plus">+</span></div>
+    <nav class="nav">
+      <a><span class="pficon fb">f</span><span class="lbl">Facebook</span><span class="tag" style="background:var(--green-soft); color:var(--green);">Live</span></a>
+      <a><span class="pficon ig">◉</span><span class="lbl">Instagram</span><span class="tag" style="background:var(--green-soft); color:var(--green);">Live</span></a>
+    </nav>
+    <div class="grouphead"><span class="car">▼</span>Business Suite<span class="newchip">New</span></div>
+    <nav class="nav">
+      <a id="nav-clients" onclick="showPage('clients')"><span class="ic">♟</span><span class="lbl">Clients &amp; Mapping</span></a>
+      <a id="nav-coupons" onclick="showPage('coupons')"><span class="ic">⛁</span><span class="lbl">Coupons &amp; Offline</span><span class="tag">P2</span></a>
+      <a id="nav-team" onclick="showPage('team')"><span class="ic">👤</span><span class="lbl">Team &amp; Co-Workers</span></a>
+      <a id="nav-billing" onclick="showPage('billing')"><span class="ic">▦</span><span class="lbl">Plan &amp; Billing</span><span class="tag">P3</span></a>
+      <a id="nav-settings" onclick="showPage('settings')"><span class="ic">⚙</span><span class="lbl">Settings</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="workspace"><div class="k">Viewing as client</div><div class="v">KPOT — Fairfax ▾</div></div>
+    <div class="syncline"><span class="dot"></span>Synced 8 min ago · hourly</div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+
+    <div class="topbar rv">
+      <div class="crumb">Analytics › <span id="crumbSect">Overview</span><b id="pageTitle">Command Center — KPOT Fairfax</b></div>
+      <span class="livechip"><span class="dot"></span>LIVE</span>
+      <div class="right">
+        <div class="seg" id="rangeSeg">
+          <button id="r30" class="active" onclick="setRange('d30')">30d</button>
+          <button id="r14" onclick="setRange('d14')">14d</button>
+          <button id="rmtd" onclick="setRange('mtd')">This month</button>
+        </div>
+        <button class="btn" onclick="window.print()">⤓ Snapshot</button>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: OVERVIEW ============ -->
+    <div class="page active" id="page-overview">
+      <div class="grid">
+        <div class="card scorecard c3 rv" style="animation-delay:.05s;">
+          <div class="k">Performance Score</div>
+          <div class="ring">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="60" fill="none" stroke="var(--gray-soft)" stroke-width="11"/>
+              <circle id="scoreArc" cx="70" cy="70" r="60" fill="none" stroke="url(#scoreGrad)" stroke-width="11" stroke-linecap="round"
+                      stroke-dasharray="377" stroke-dashoffset="377" style="transition:stroke-dashoffset 1.4s cubic-bezier(.2,.7,.2,1);"/>
+              <defs><linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#635BFF"/><stop offset="100%" stop-color="#00B8AC"/></linearGradient></defs>
+            </svg>
+            <div class="num"><b id="scoreNum">0</b><span>of 100</span></div>
+          </div>
+          <div class="verdict">Strong month ↑</div>
+          <div class="why">Cost efficiency vs 90d avg · ER vs benchmark · goal pacing · redemption trend</div>
+        </div>
+
+        <div class="card c6 rv" style="animation-delay:.1s;">
+          <div class="bigrow">
+            <div class="bignum"><div class="k">Ad spend</div><div class="v" id="cu-spend">$0</div><div class="d up">↑ 7.8%</div></div>
+            <div class="bignum"><div class="k">Coupon claims</div><div class="v" id="cu-claims">0</div><div class="d up">↑ 18.9%</div></div>
+            <div class="bignum"><div class="k">Organic engagement</div><div class="v" id="cu-eng">0</div><div class="d up">↑ 14.2%</div></div>
+            <div class="bignum"><div class="k">Cost / redemption</div><div class="v" id="cu-cpr">$0</div><div class="d up">↓ 8.0%</div></div>
+          </div>
+          <div class="chartzone">
+            <div class="legendrow"><span><span class="sw"></span>Link clicks — current</span><span><span class="sw dotted"></span>Previous period</span></div>
+            <svg id="chart" viewBox="0 0 920 210" width="100%" height="210"></svg>
+            <div class="tooltip" id="tt"></div>
+          </div>
+        </div>
+
+        <div class="card insightcard c3 rv" style="animation-delay:.14s;">
+          <div class="cardhead" style="margin-bottom:4px;"><div><h3>✦ Pulse insights</h3><div class="cap">Auto-generated from this period</div></div></div>
+          <div class="i"><span class="badge3">$</span><span><b>Reels earn claims 2× cheaper</b> than carousel ($1.91 vs $3.77). Shift $50/wk.</span></div>
+          <div class="i"><span class="badge3">⏰</span><span><b>Thu–Fri 6–9 PM</b> is the engagement window — schedule the next 3 posts there.</span></div>
+          <div class="i"><span class="badge3">🎯</span><span><b>Claims pacing 110%</b> of the 500 goal. Redemption rate +5.5 pts since April.</span></div>
+          <div class="i"><span class="badge3">📈</span><span><b>Organic share of reach hit 39%</b> (was 31% in April) — content is compounding.</span></div>
+        </div>
+
+        <div class="c12"><div class="grid" id="kpiGrid" style="gap:12px;"></div></div>
+
+        <div class="card c7 rv" style="animation-delay:.2s;">
+          <div class="cardhead"><div><h3>The full funnel — ad dollar to table</h3><div class="cap">Bottom stage is real in-store data no subscription tool can show</div></div><span class="pill">Signature chart</span></div>
+          <div class="funnel">
+            <div class="fstage"><div class="nm">Impressions<b>187,110</b></div><div class="fbarwrap"><div class="fbar" data-w="100" style="background:linear-gradient(90deg,#635BFF,#7A73FF);">100%</div></div><div class="fconv">34.4%<small>see → reach</small></div></div>
+            <div class="fstage"><div class="nm">Reach<b>64,300</b></div><div class="fbarwrap"><div class="fbar" data-w="62" style="background:linear-gradient(90deg,#6E66FF,#8F88FF);">64,300</div></div><div class="fconv">5.3%<small>reach → click</small></div></div>
+            <div class="fstage"><div class="nm">Link clicks<b>3,384</b></div><div class="fbarwrap"><div class="fbar" data-w="36" style="background:linear-gradient(90deg,#8F88FF,#00B8AC);">3,384</div></div><div class="fconv">12.2%<small>click → claim</small></div></div>
+            <div class="fstage"><div class="nm">Coupon claims<b>412</b></div><div class="fbarwrap"><div class="fbar" data-w="20" style="background:linear-gradient(90deg,#00B8AC,#0E8745);">412</div></div><div class="fconv">33.3%<small>claim → redeem</small></div></div>
+            <div class="fstage"><div class="nm">Redeemed in-store<b>137</b></div><div class="fbarwrap foffline"><div class="fbar" data-w="11" style="background:linear-gradient(90deg,#E8C658,#D4A017); color:#1A1F36;">137 · $9.05</div></div><div class="fconv" style="color:var(--gold);">offline<small>client-reported</small></div></div>
+          </div>
+        </div>
+
+        <div class="card c5 rv" style="animation-delay:.24s;">
+          <div class="cardhead"><div><h3>Monthly goals — pacing</h3><div class="cap">Tick = where you should be on day 11 of 30</div></div></div>
+          <div class="gauge"><div class="t"><span>Coupon claims</span><span>412 / 500 <small>· 82%</small></span></div>
+            <div class="track"><div class="fill" data-w="82"></div><div class="pacer" style="left:37%;"></div></div>
+            <div class="status" style="color:var(--green);">▲ 110% of pace — beats goal ~Jun 24</div></div>
+          <div class="gauge"><div class="t"><span>New followers</span><span>214 / 250 <small>· 86%</small></span></div>
+            <div class="track"><div class="fill" data-w="86"></div><div class="pacer" style="left:37%;"></div></div>
+            <div class="status" style="color:var(--green);">▲ 133% of pace — raise the goal next month</div></div>
+          <div class="gauge"><div class="t"><span>Cost / redemption (≤ $8.50)</span><span>$9.05 <small>· trending ↓</small></span></div>
+            <div class="track"><div class="fill" data-w="66" style="background:linear-gradient(90deg,#E8C658,#D4A017);"></div><div class="pacer" style="left:94%;"></div></div>
+            <div class="status" style="color:var(--warn);">● $0.55 above target — closing at −$0.24/period</div></div>
+        </div>
+
+        <div class="card c3 rv" style="animation-delay:.28s;">
+          <div class="cardhead"><div><h3>Reach: paid vs organic</h3><div class="cap">Where eyeballs come from</div></div></div>
+          <div class="splitrow"><svg id="donut1" width="118" height="118" viewBox="0 0 130 130"></svg>
+            <div class="dlegend">
+              <div class="row"><span class="dotc" style="background:#635BFF;"></span>Paid<b>61%</b></div>
+              <div class="row"><span class="dotc" style="background:#00B8AC;"></span>Organic<b>39%</b></div>
+              <div class="row"><small>Organic up from 31% in April</small></div>
+            </div></div>
+        </div>
+        <div class="card c3 rv" style="animation-delay:.31s;">
+          <div class="cardhead"><div><h3>Engagement by platform</h3><div class="cap">FB + IG organic, 30d</div></div></div>
+          <div class="splitrow"><svg id="donut2" width="118" height="118" viewBox="0 0 130 130"></svg>
+            <div class="dlegend">
+              <div class="row"><span class="dotc" style="background:#E84393;"></span>Instagram<b>81%</b></div>
+              <div class="row"><span class="dotc" style="background:#635BFF;"></span>Facebook<b>19%</b></div>
+              <div class="row"><small>FB wins clicks/follower — keep CTAs there</small></div>
+            </div></div>
+        </div>
+        <div class="card c3 rv" style="animation-delay:.34s;">
+          <div class="cardhead"><div><h3>Format battle — ER%</h3><div class="cap">Gold = industry benchmark 4.1%</div></div></div>
+          <div class="hbar"><div class="t"><span>🎬 Reels</span><span>8.2%</span></div><div class="track"><div class="fill" data-w="82"></div><div class="benchline" style="left:41%;"></div></div></div>
+          <div class="hbar"><div class="t"><span>📖 Stories</span><span>6.3%</span></div><div class="track"><div class="fill" data-w="63"></div><div class="benchline" style="left:41%;"></div></div></div>
+          <div class="hbar"><div class="t"><span>🖼 Posts</span><span>6.1%</span></div><div class="track"><div class="fill" data-w="61"></div><div class="benchline" style="left:41%;"></div></div></div>
+          <div class="hbar"><div class="t"><span>🎠 Carousels</span><span>3.8%</span></div><div class="track"><div class="fill" data-w="38"></div><div class="benchline" style="left:41%;"></div></div></div>
+          <div class="benchnote"><i></i>Everything but carousels beats the industry</div>
+        </div>
+        <div class="card c3 rv" style="animation-delay:.37s;">
+          <div class="cardhead"><div><h3>Follower growth</h3><div class="cap">Bars = daily adds · line = total</div></div><span class="pill" style="background:var(--green-soft); color:var(--green);">+214</span></div>
+          <svg id="folChart" viewBox="0 0 560 200" width="100%" height="170"></svg>
+        </div>
+
+        <div class="card c6 rv" style="animation-delay:.4s;">
+          <div class="cardhead"><div><h3>Best time to post</h3><div class="cap">Engagement per post by publish slot · last 90 days</div></div></div>
+          <div class="heat" id="heat"></div>
+          <div class="heatnote">Peak: <b>Thu–Fri 6–9 PM</b> · worst: weekday mornings · auto-feeds the content calendar</div>
+        </div>
+        <div class="card c6 rv" style="animation-delay:.43s;">
+          <div class="cardhead"><div><h3>Period comparison matrix</h3><div class="cap">This 30d vs previous vs 90-day average</div></div></div>
+          <table>
+            <thead><tr><th>Metric</th><th class="num">Current</th><th class="num">Previous</th><th class="num">Δ</th><th class="num">90d avg</th></tr></thead>
+            <tbody>
+              <tr><td class="metricname">Spend</td><td class="num">$1,240</td><td class="num">$1,150</td><td class="num"><span class="dchip up">+7.8%</span></td><td class="num">$1,183</td></tr>
+              <tr><td class="metricname">CPC</td><td class="num">$0.37</td><td class="num">$0.42</td><td class="num"><span class="dchip up">−11.3%</span></td><td class="num">$0.41</td></tr>
+              <tr><td class="metricname">Coupon claims</td><td class="num">412</td><td class="num">347</td><td class="num"><span class="dchip up">+18.9%</span></td><td class="num">362</td></tr>
+              <tr><td class="metricname">Cost / claim</td><td class="num">$3.01</td><td class="num">$3.32</td><td class="num"><span class="dchip up">−9.4%</span></td><td class="num">$3.27</td></tr>
+              <tr><td class="metricname">Redemption rate</td><td class="num">33.3%</td><td class="num">30.7%</td><td class="num"><span class="dchip up">+2.6 pts</span></td><td class="num">31.2%</td></tr>
+              <tr><td class="metricname">Organic engagement</td><td class="num">3,318</td><td class="num">2,905</td><td class="num"><span class="dchip up">+14.2%</span></td><td class="num">2,840</td></tr>
+              <tr><td class="metricname">Engagement rate</td><td class="num">4.6%</td><td class="num">4.2%</td><td class="num"><span class="dchip up">+0.4 pts</span></td><td class="num">4.3%</td></tr>
+              <tr><td class="metricname">Follower net adds</td><td class="num">+214</td><td class="num">+102</td><td class="num"><span class="dchip up">+110%</span></td><td class="num">+138</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card c12 rv" style="animation-delay:.46s;">
+          <div class="cardhead"><div><h3>Top performing content</h3><div class="cap">Ranked by engagement rate · replicate these</div></div></div>
+          <div class="topposts">
+            <div class="post"><div class="head"><div class="thumb">🎬</div><div><div class="date">Jun 8 · <span class="pf ig">IG · REEL</span></div><div class="title">"AYCE Challenge — 60 min, can you finish?"</div></div></div>
+              <div class="stats"><span>❤ 1,204</span><span>💬 89</span><span>↗ 215</span><span>🔖 134</span><span class="er">8.9% ER</span></div>
+              <div class="stats"><span>Reach 18.4K</span><span>Clicks 214</span></div></div>
+            <div class="post"><div class="head"><div class="thumb">👨‍🍳</div><div><div class="date">May 29 · <span class="pf ig">IG · REEL</span></div><div class="title">"Behind the grill with Marco — 200 plates a night"</div></div></div>
+              <div class="stats"><span>❤ 742</span><span>💬 64</span><span>↗ 98</span><span>🔖 64</span><span class="er">7.6% ER</span></div>
+              <div class="stats"><span>Reach 12.7K</span><span>Clicks 122</span></div></div>
+            <div class="post"><div class="head"><div class="thumb">🔥</div><div><div class="date">Jun 5 · <span class="pf ig">IG · POST</span></div><div class="title">"NEW: Szechuan spicy broth just landed"</div></div></div>
+              <div class="stats"><span>❤ 488</span><span>💬 47</span><span>↗ 41</span><span>🔖 36</span><span class="er">6.7% ER</span></div>
+              <div class="stats"><span>Reach 9.1K</span><span>Clicks 98</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: CONTENT PERFORMANCE ============ -->
+    <div class="page" id="page-content">
+      <div class="grid">
+        <div class="card kpi c3"><div class="icon">🔥</div><div class="label">Total engagement</div><div class="val">3,318</div><div class="delta up">+14.2% vs prev</div></div>
+        <div class="card kpi c3"><div class="icon">👥</div><div class="label">Follower growth</div><div class="val">+214</div><div class="delta up">8,432 total · +2.6%</div></div>
+        <div class="card kpi c3"><div class="icon">👁</div><div class="label">Organic impressions</div><div class="val">58.7K</div><div class="delta up">+9.3% vs prev</div></div>
+        <div class="card kpi c3"><div class="icon">✨</div><div class="label">Engagement rate</div><div class="val">4.6%</div><div class="delta up">+0.4 pts vs prev</div></div>
+
+        <div class="card c8">
+          <div class="cardhead">
+            <div><h3>Engagement performance</h3><div class="cap" id="engCap">Daily likes · FB + IG combined · last 30 days</div></div>
+            <div class="seg" style="margin-left:auto;">
+              <button id="eng-likes" class="active" onclick="setEng('likes')">Likes</button>
+              <button id="eng-comments" onclick="setEng('comments')">Comments</button>
+              <button id="eng-shares" onclick="setEng('shares')">Shares</button>
+              <button id="eng-saves" onclick="setEng('saves')">Saves</button>
+            </div>
+          </div>
+          <svg id="engChart" viewBox="0 0 920 210" width="100%" height="210"></svg>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button class="minibtn on">All formats</button><button class="minibtn">Posts</button><button class="minibtn">Reels</button><button class="minibtn">Stories</button>
+          </div>
+        </div>
+
+        <div class="card c4">
+          <div class="cardhead"><div><h3>Format mix — published</h3><div class="cap">22 pieces this period</div></div></div>
+          <div class="hbar"><div class="t"><span>🖼 Posts</span><span>12</span></div><div class="track"><div class="fill" data-w="100"></div></div></div>
+          <div class="hbar"><div class="t"><span>📖 Stories</span><span>6</span></div><div class="track"><div class="fill" data-w="50"></div></div></div>
+          <div class="hbar"><div class="t"><span>🎬 Reels</span><span>4</span></div><div class="track"><div class="fill" data-w="33"></div></div></div>
+          <div class="benchnote" style="margin-top:14px;">Reels are 18% of output but 49% of engagement — the calendar should flip toward them.</div>
+        </div>
+
+        <div class="card c12">
+          <div class="cardhead">
+            <div><h3>All posts</h3><div class="cap">Every organic post, story and reel · synced from Pages API + IG Graph API</div></div>
+            <div style="margin-left:auto; display:flex; gap:8px;">
+              <button class="minibtn on">All</button>
+              <button class="minibtn">Facebook</button>
+              <button class="minibtn">Instagram</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Post</th><th>Platform</th><th>Format</th><th>Published</th><th class="num">Reach</th><th class="num">Engagement</th><th class="num">ER</th><th class="num">Link clicks</th></tr></thead>
+            <tbody>
+              <tr><td style="display:flex; align-items:center; gap:11px;"><span class="postthumb">🎬</span><span class="campname">AYCE Challenge — 60 min…<small>Reel · 0:34</small></span></td><td><span class="pf ig">Instagram</span></td><td>Reel</td><td style="color:var(--muted);">Jun 8</td><td class="num">18,420</td><td class="num">1,642</td><td class="num">8.9%</td><td class="num">214</td></tr>
+              <tr><td style="display:flex; align-items:center; gap:11px;"><span class="postthumb">🔥</span><span class="campname">NEW: Szechuan spicy broth…<small>Single image</small></span></td><td><span class="pf ig">Instagram</span></td><td>Post</td><td style="color:var(--muted);">Jun 5</td><td class="num">9,140</td><td class="num">612</td><td class="num">6.7%</td><td class="num">98</td></tr>
+              <tr><td style="display:flex; align-items:center; gap:11px;"><span class="postthumb">🎂</span><span class="campname">Birthday crew of 14 last night…<small>Photo album · 3</small></span></td><td><span class="pf fb">Facebook</span></td><td>Post</td><td style="color:var(--muted);">Jun 3</td><td class="num">4,230</td><td class="num">287</td><td class="num">6.8%</td><td class="num">41</td></tr>
+              <tr><td style="display:flex; align-items:center; gap:11px;"><span class="postthumb">👨‍🍳</span><span class="campname">Behind the grill with Marco…<small>Reel · 0:41</small></span></td><td><span class="pf ig">Instagram</span></td><td>Reel</td><td style="color:var(--muted);">May 29</td><td class="num">12,710</td><td class="num">968</td><td class="num">7.6%</td><td class="num">122</td></tr>
+              <tr><td style="display:flex; align-items:center; gap:11px;"><span class="postthumb">📅</span><span class="campname">Father's Day — book your table<small>Single image + CTA</small></span></td><td><span class="pf fb">Facebook</span></td><td>Post</td><td style="color:var(--muted);">May 26</td><td class="num">6,810</td><td class="num">343</td><td class="num">5.0%</td><td class="num">187</td></tr>
+              <tr><td style="display:flex; align-items:center; gap:11px;"><span class="postthumb">📖</span><span class="campname">Weekend wait times — poll<small>Story · 2 frames</small></span></td><td><span class="pf ig">Instagram</span></td><td>Story</td><td style="color:var(--muted);">May 24</td><td class="num">3,120</td><td class="num">196</td><td class="num">6.3%</td><td class="num">30</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: AUDIENCE INSIGHTS ============ -->
+    <div class="page" id="page-audience">
+      <div class="grid">
+        <div class="card kpi c3"><div class="icon">👥</div><div class="label">Total followers (FB+IG)</div><div class="val">8,432</div><div class="delta up">+214 this period</div></div>
+        <div class="card kpi c3"><div class="icon">➕</div><div class="label">New follows</div><div class="val">252</div><div class="delta up">+38 unfollows = net +214</div></div>
+        <div class="card kpi c3"><div class="icon">👁</div><div class="label">Profile views</div><div class="val">1,630</div><div class="delta up">+11.4% vs prev</div></div>
+        <div class="card kpi c3"><div class="icon">📍</div><div class="label">Local audience</div><div class="val">69%</div><div class="delta up">within 15 mi of the restaurant</div></div>
+
+        <div class="card c6">
+          <div class="cardhead"><div><h3>Follower growth</h3><div class="cap">Bars = daily net adds · line = cumulative total</div></div><span class="pill" style="background:var(--green-soft); color:var(--green);">+214 · 30d</span></div>
+          <svg id="folChart2" viewBox="0 0 560 200" width="100%" height="200"></svg>
+        </div>
+
+        <div class="card c3">
+          <div class="cardhead"><div><h3>Gender</h3><div class="cap">IG audience</div></div></div>
+          <div class="splitrow"><svg id="donut3" width="118" height="118" viewBox="0 0 130 130"></svg>
+            <div class="dlegend">
+              <div class="row"><span class="dotc" style="background:#635BFF;"></span>Women<b>62%</b></div>
+              <div class="row"><span class="dotc" style="background:#00B8AC;"></span>Men<b>38%</b></div>
+            </div></div>
+        </div>
+
+        <div class="card c3">
+          <div class="cardhead"><div><h3>Age ranges</h3><div class="cap">IG audience</div></div></div>
+          <div class="hbar"><div class="t"><span>18–24</span><span>22%</span></div><div class="track"><div class="fill" data-w="58"></div></div></div>
+          <div class="hbar"><div class="t"><span>25–34</span><span>38%</span></div><div class="track"><div class="fill" data-w="100"></div></div></div>
+          <div class="hbar"><div class="t"><span>35–44</span><span>24%</span></div><div class="track"><div class="fill" data-w="63"></div></div></div>
+          <div class="hbar"><div class="t"><span>45–54</span><span>11%</span></div><div class="track"><div class="fill" data-w="29"></div></div></div>
+          <div class="hbar"><div class="t"><span>55+</span><span>5%</span></div><div class="track"><div class="fill" data-w="13"></div></div></div>
+        </div>
+
+        <div class="card c6">
+          <div class="cardhead"><div><h3>Top locations</h3><div class="cap">Where followers live · drives geo-targeting for the next campaign</div></div></div>
+          <table>
+            <thead><tr><th>City</th><th class="num">Share</th><th class="num">vs prev</th></tr></thead>
+            <tbody>
+              <tr><td class="metricname">Fairfax, VA</td><td class="num">41%</td><td class="num"><span class="dchip up">+2 pts</span></td></tr>
+              <tr><td class="metricname">Centreville, VA</td><td class="num">12%</td><td class="num"><span class="dchip up">+1 pt</span></td></tr>
+              <tr><td class="metricname">Chantilly, VA</td><td class="num">9%</td><td class="num">—</td></tr>
+              <tr><td class="metricname">Arlington, VA</td><td class="num">7%</td><td class="num"><span class="dchip up">+1 pt</span></td></tr>
+              <tr><td class="metricname">Washington, DC</td><td class="num">6%</td><td class="num"><span class="dchip down">−1 pt</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card c6">
+          <div class="cardhead"><div><h3>When followers are online</h3><div class="cap">Feeds the posting schedule together with the best-time heatmap</div></div></div>
+          <div class="hbar"><div class="t"><span>6–9 PM</span><span>peak</span></div><div class="track"><div class="fill" data-w="100"></div></div></div>
+          <div class="hbar"><div class="t"><span>9 PM–12 AM</span><span></span></div><div class="track"><div class="fill" data-w="78"></div></div></div>
+          <div class="hbar"><div class="t"><span>12–3 PM (lunch)</span><span></span></div><div class="track"><div class="fill" data-w="64"></div></div></div>
+          <div class="hbar"><div class="t"><span>3–6 PM</span><span></span></div><div class="track"><div class="fill" data-w="52"></div></div></div>
+          <div class="hbar"><div class="t"><span>9 AM–12 PM</span><span></span></div><div class="track"><div class="fill" data-w="31"></div></div></div>
+          <div class="benchnote" style="margin-top:12px;">62% women, 25–34 core, 69% local, online evenings — the AYCE date-night angle writes itself.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: ENGAGEMENT TRACKER ============ -->
+    <div class="page" id="page-engagement">
+      <div class="grid">
+        <div class="card kpi c3"><div class="icon">💬</div><div class="label">Total interactions</div><div class="val">3,318</div><div class="delta up">+14.2% vs prev</div></div>
+        <div class="card kpi c3"><div class="icon">📊</div><div class="label">Avg per post</div><div class="val">277</div><div class="delta up">+9.1% vs prev</div></div>
+        <div class="card kpi c3"><div class="icon">↩</div><div class="label">Comment reply rate</div><div class="val">92%</div><div class="delta up">target ≥ 90%</div></div>
+        <div class="card kpi c3"><div class="icon">⏱</div><div class="label">Avg response time</div><div class="val">1.4h</div><div class="delta up">−0.6h vs prev</div></div>
+
+        <div class="card c8">
+          <div class="cardhead">
+            <div><h3>Interactions over time</h3><div class="cap" id="engCap2">Daily likes · FB + IG · last 30 days</div></div>
+            <div class="seg" style="margin-left:auto;">
+              <button id="eng2-likes" class="active" onclick="setEng2('likes')">Likes</button>
+              <button id="eng2-comments" onclick="setEng2('comments')">Comments</button>
+              <button id="eng2-shares" onclick="setEng2('shares')">Shares</button>
+              <button id="eng2-saves" onclick="setEng2('saves')">Saves</button>
+            </div>
+          </div>
+          <svg id="engChart2" viewBox="0 0 920 210" width="100%" height="210"></svg>
+        </div>
+
+        <div class="card c4">
+          <div class="cardhead"><div><h3>Interaction mix</h3><div class="cap">30 days</div></div></div>
+          <div class="splitrow"><svg id="donut4" width="118" height="118" viewBox="0 0 130 130"></svg>
+            <div class="dlegend">
+              <div class="row"><span class="dotc" style="background:#635BFF;"></span>Likes<b>74%</b></div>
+              <div class="row"><span class="dotc" style="background:#00B8AC;"></span>Shares<b>10%</b></div>
+              <div class="row"><span class="dotc" style="background:#E84393;"></span>Comments<b>9%</b></div>
+              <div class="row"><span class="dotc" style="background:#D4A017;"></span>Saves<b>7%</b></div>
+            </div></div>
+          <div class="benchnote" style="margin-top:10px;">Saves at 7% is strong — content is reference-worthy, not just scroll-worthy.</div>
+        </div>
+
+        <div class="card c12">
+          <div class="cardhead"><div><h3>Recent interactions — needs attention first</h3><div class="cap">Comments + DMs from both platforms · same triage engine as the JJ's QC system</div></div><span class="pill">CX layer</span></div>
+          <table>
+            <thead><tr><th>Interaction</th><th>Post</th><th>Platform</th><th>When</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="campname">"Do you have vegetarian broth options?"<small>Comment · @sara.nguyen</small></td><td style="color:var(--muted);">Szechuan broth post</td><td><span class="pf ig">IG</span></td><td style="color:var(--muted);">12 min ago</td><td><span class="badge pend">Pending</span></td><td style="text-align:right;"><button class="minibtn">Reply</button></td></tr>
+              <tr><td class="campname">"Came Friday with the coupon — amazing!! 🔥"<small>Comment · @dmv.foodie</small></td><td style="color:var(--muted);">AYCE Challenge reel</td><td><span class="pf ig">IG</span></td><td style="color:var(--muted);">1h ago</td><td><span class="badge run">Replied</span></td><td></td></tr>
+              <tr><td class="campname">"What's the wait like on Saturdays around 7?"<small>DM</small></td><td style="color:var(--muted);">—</td><td><span class="pf fb">FB</span></td><td style="color:var(--muted);">2h ago</td><td><span class="badge run">Replied · 22 min</span></td><td></td></tr>
+              <tr><td class="campname">"Coupon code didn't scan at the register"<small>DM</small></td><td style="color:var(--muted);">AYCE coupon</td><td><span class="pf ig">IG</span></td><td style="color:var(--muted);">3h ago</td><td><span class="badge pend" style="background:var(--red-soft); color:var(--red);">Escalated</span></td><td style="text-align:right;"><button class="minibtn">View</button></td></tr>
+              <tr><td class="campname">"Do you take large group reservations?"<small>Comment · @j.park88</small></td><td style="color:var(--muted);">Birthday crew post</td><td><span class="pf fb">FB</span></td><td style="color:var(--muted);">5h ago</td><td><span class="badge run">Replied</span></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: CAMPAIGN REPORTS ============ -->
+    <div class="page" id="page-campaigns">
+      <div class="grid">
+        <div class="card c12">
+          <div class="cardhead">
+            <div><h3>All paid campaigns</h3><div class="cap">Synced from the shared ad account · click a campaign for ad-level detail</div></div>
+            <div style="margin-left:auto; display:flex; gap:8px;">
+              <button class="minibtn on">All</button><button class="minibtn">Running</button><button class="minibtn">Ended</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Campaign</th><th>Status</th><th>Dates</th><th class="num">Spend</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">Results</th><th>Trend</th></tr></thead>
+            <tbody>
+              <tr class="selectable selected"><td class="campname">AYCE Coupon | June<small>Coupon claim offer</small></td><td><span class="badge run">Running</span></td><td style="color:var(--muted);">Jun 1 → ongoing</td><td class="num">$612</td><td class="num">1,890</td><td class="num">1.96%</td><td class="num">$0.32</td><td class="num">264</td><td class="spark" data-kind="1"></td></tr>
+              <tr class="selectable"><td class="campname">Weekday Lunch Push<small>Traffic</small></td><td><span class="badge run">Running</span></td><td style="color:var(--muted);">May 13 → ongoing</td><td class="num">$385</td><td class="num">1,016</td><td class="num">1.75%</td><td class="num">$0.38</td><td class="num">96</td><td class="spark" data-kind="1"></td></tr>
+              <tr class="selectable"><td class="campname">Grand Re-Opening Teaser<small>Reach</small></td><td><span class="badge end">Ended</span></td><td style="color:var(--muted);">May 18 → Jun 4</td><td class="num">$243</td><td class="num">478</td><td class="num">1.47%</td><td class="num">$0.51</td><td class="num">52</td><td class="spark" data-kind="2"></td></tr>
+              <tr class="selectable"><td class="campname">Mother's Day Family Bundle<small>Coupon claim offer</small></td><td><span class="badge end">Ended</span></td><td style="color:var(--muted);">Apr 28 → May 12</td><td class="num">$420</td><td class="num">1,310</td><td class="num">2.04%</td><td class="num">$0.32</td><td class="num">189</td><td class="spark" data-kind="2"></td></tr>
+              <tr class="selectable"><td class="campname">Spring Break Karaoke Night<small>Event responses</small></td><td><span class="badge end">Ended</span></td><td style="color:var(--muted);">Apr 6 → Apr 20</td><td class="num">$310</td><td class="num">844</td><td class="num">1.62%</td><td class="num">$0.37</td><td class="num">71</td><td class="spark" data-kind="1"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card c12">
+          <div class="cardhead">
+            <div><h3>AYCE Coupon | June — detail</h3><div class="cap">Daily claims · ad-level breakdown below</div></div>
+            <span class="badge run" style="margin-left:auto;">Running · $20.40/day avg</span>
+          </div>
+          <svg id="campChart" viewBox="0 0 1000 180" width="100%" height="180"></svg>
+          <table style="margin-top:14px;">
+            <thead><tr><th>Ad</th><th>Format</th><th class="num">Spend</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">Claims</th><th class="num">Cost/claim</th></tr></thead>
+            <tbody>
+              <tr><td style="display:flex; align-items:center; gap:11px;"><span class="adthumb">🎬</span><span class="campname">Sizzle Reel 15s<small>9:16 video</small></span></td><td><span class="badge p2">Reel</span></td><td class="num">$298</td><td class="num">1,044</td><td class="num">2.31%</td><td class="num">156</td><td class="num">$1.91</td></tr>
+              <tr><td style="display:flex; align-items:center; gap:11px;"><span class="adthumb">🖼</span><span class="campname">$5 Off Coupon — Static<small>1:1 image</small></span></td><td><span class="badge p2">Feed</span></td><td class="num">$201</td><td class="num">562</td><td class="num">1.74%</td><td class="num">78</td><td class="num">$2.58</td></tr>
+              <tr><td style="display:flex; align-items:center; gap:11px;"><span class="adthumb">🎠</span><span class="campname">Menu Favorites<small>carousel · 4 cards</small></span></td><td><span class="badge p2">Carousel</span></td><td class="num">$113</td><td class="num">284</td><td class="num">1.42%</td><td class="num">30</td><td class="num">$3.77</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: EXPORT CENTER ============ -->
+    <div class="page" id="page-exports">
+      <div class="grid">
+        <div class="card c5">
+          <div class="cardhead"><div><h3>Snapshot schedule</h3><div class="cap">Auto-generate and send the live dashboard as a PDF</div></div></div>
+          <div class="switchrow"><div class="k"><b>Auto-send monthly</b><small>1st of each month · 9:00 AM ET</small></div><div class="switch"></div></div>
+          <div class="switchrow"><div class="k"><b>Include organic section</b><small>Posts, reels, follower growth</small></div><div class="switch"></div></div>
+          <div class="switchrow"><div class="k"><b>Include coupon section</b><small>Phase 2 · offline results</small></div><div class="switch"></div></div>
+          <div class="switchrow"><div class="k"><b>Notify Blanca on send</b><small>Internal copy + open tracking</small></div><div class="switch"></div></div>
+          <div class="field" style="margin-top:14px;"><label>Recipients</label><input value="manager@kpotfairfax.com, blanca@topfloormarketing.net"></div>
+          <button class="btn primary" style="width:100%;">⤓ Generate snapshot now</button>
+        </div>
+        <div class="card c7">
+          <div class="cardhead"><div><h3>Sent snapshots</h3><div class="cap">History with open tracking — Databox charges for this</div></div></div>
+          <table>
+            <thead><tr><th>Report</th><th>Sent</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><b style="font-weight:600;">June 2026 — Monthly</b><br><small style="color:var(--muted);">May paid + organic + coupon recap</small></td><td style="color:var(--muted);">Jun 1, 9:00 AM</td><td><span class="badge run">Opened 2×</span></td><td style="text-align:right;"><button class="minibtn">View PDF</button></td></tr>
+              <tr><td><b style="font-weight:600;">May 2026 — Monthly</b><br><small style="color:var(--muted);">April performance</small></td><td style="color:var(--muted);">May 1, 9:00 AM</td><td><span class="badge run">Opened 1×</span></td><td style="text-align:right;"><button class="minibtn">View PDF</button></td></tr>
+              <tr><td><b style="font-weight:600;">April 2026 — Monthly</b><br><small style="color:var(--muted);">March performance</small></td><td style="color:var(--muted);">Apr 1, 9:00 AM</td><td><span class="badge pend">Not opened</span></td><td style="text-align:right;"><button class="minibtn">View PDF</button></td></tr>
+              <tr><td><b style="font-weight:600;">Mid-month check-in</b><br><small style="color:var(--muted);">Manual · re-opening campaign</small></td><td style="color:var(--muted);">May 19, 2:14 PM</td><td><span class="badge run">Opened 4×</span></td><td style="text-align:right;"><button class="minibtn">View PDF</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card c12">
+          <div class="cardhead">
+            <div><h3>AI performance summary</h3><div class="cap">Phase 3 · Claude writes the monthly narrative from the same data — editable before send</div></div>
+            <span class="badge p2" style="margin-left:auto;">Phase 3</span>
+          </div>
+          <div style="background:var(--bg); border:1px dashed var(--line2); border-radius:10px; padding:16px 18px; font-size:13.5px; line-height:1.65; color:var(--muted); font-style:italic;">
+            "May was KPOT Fairfax's strongest month this quarter. Paid: the AYCE coupon drove 264 claims at $2.32 each — 24% cheaper than April. Organic: the AYCE Challenge reel reached 18.4K accounts at 8.9% engagement, your best post in 90 days, and follower growth doubled to +214. In-store counts confirm 137 redemptions, bringing cost-per-redemption under $9.05 for the first time. Recommendation: shift $50/week from the carousel to Reels, and post two more Challenge-format reels this month…"
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: CLIENTS & MAPPING ============ -->
+    <div class="page" id="page-clients">
+      <div class="grid">
+        <div class="card c7">
+          <div class="cardhead"><div><h3>Clients &amp; share links</h3><div class="cap">One live dashboard per client · revoke regenerates the token</div></div>
+          <button class="btn primary" style="margin-left:auto;">+ Add client</button></div>
+          <table>
+            <thead><tr><th>Client</th><th>Paid</th><th>Organic</th><th>Share link</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="metricname">KPOT Fairfax</td><td><span class="badge run">Live</span></td><td><span class="badge run">FB + IG</span></td><td class="linkcell">/r/x7Kq…f2</td><td style="text-align:right;"><button class="minibtn danger">Revoke</button></td></tr>
+              <tr><td class="metricname">KPOT Rockville</td><td><span class="badge run">Live</span></td><td><span class="badge pend">IG pending</span></td><td class="linkcell">/r/m3Tn…a9</td><td style="text-align:right;"><button class="minibtn danger">Revoke</button></td></tr>
+              <tr><td class="metricname">KPOT Frederick</td><td><span class="badge run">Live</span></td><td><span class="badge run">FB + IG</span></td><td class="linkcell">/r/p8Vw…c4</td><td style="text-align:right;"><button class="minibtn danger">Revoke</button></td></tr>
+              <tr><td class="metricname">KPOT Sterling</td><td><span class="badge pend">Mapping</span></td><td><span class="badge pend">Page access</span></td><td class="linkcell">—</td><td></td></tr>
+              <tr><td class="metricname">KPOT Aberdeen</td><td><span class="badge pend">Mapping</span></td><td><span class="badge pend">Page access</span></td><td class="linkcell">—</td><td></td></tr>
+              <tr><td class="metricname">JTM — JJ's Bakery</td><td><span class="badge end">No ads</span></td><td><span class="badge pend">Via Blanca admin</span></td><td class="linkcell">—</td><td></td></tr>
+              <tr><td class="metricname">Supermix</td><td><span class="badge end">Queued</span></td><td><span class="badge end">Queued</span></td><td class="linkcell">—</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="c5">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="cardhead"><div><h3>Sync health</h3><div class="cap">Hourly cron · 3 Meta APIs</div></div></div>
+            <ul class="health">
+              <li><span class="k">Marketing API (ads)</span><span class="v ok">12:47 PM · OK · 1,034 rows</span></li>
+              <li><span class="k">Pages API (FB organic)</span><span class="v ok">12:49 PM · OK · 212 rows</span></li>
+              <li><span class="k">IG Graph API (IG organic)</span><span class="v ok">12:50 PM · OK · 388 rows</span></li>
+              <li><span class="k">Attribution (paid)</span><span class="v">7d click / 1d view — pinned</span></li>
+              <li><span class="k">Token root</span><span class="v warn">System User · temp BM ⚠</span></li>
+              <li><span class="k">Post snapshots</span><span class="v ok">Daily — lifetime deltas</span></li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="cardhead"><div><h3>Unmapped campaigns</h3><div class="cap">New campaigns wait here for assignment</div></div></div>
+            <table>
+              <tbody>
+                <tr><td class="campname">KPOT Sterling — Father's Day BOGO<small>created Jun 9 · $0 spend</small></td><td style="text-align:right;"><button class="minibtn">Assign</button></td></tr>
+                <tr><td class="campname">KPOT Aberdeen — Student Night<small>created Jun 10 · $14 spend</small></td><td style="text-align:right;"><button class="minibtn">Assign</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: COUPONS & OFFLINE ============ -->
+    <div class="page" id="page-coupons">
+      <div class="grid">
+        <div class="card c12" style="border-color:var(--accent); border-style:dashed;">
+          <div class="cardhead" style="margin-bottom:0;">
+            <div><h3>Phase 2 preview — the offline loop</h3><div class="cap">KPOT counts redemptions in-restaurant and reports every 15 days. This page gives those numbers a home next to the spend.</div></div>
+            <span class="badge p2" style="margin-left:auto;">Phase 2</span>
+          </div>
+        </div>
+        <div class="card c4">
+          <div class="cardhead"><div><h3>Log a redemption report</h3><div class="cap">Entered from the client's biweekly count</div></div></div>
+          <div class="field"><label>Location</label><select><option>KPOT Fairfax</option><option>KPOT Rockville</option><option>KPOT Frederick</option></select></div>
+          <div class="field"><label>Reporting period</label><input value="May 28 – Jun 11, 2026"></div>
+          <div class="field"><label>Coupons redeemed</label><input value="64"></div>
+          <div class="field"><label>Source</label><select><option>KPOT biweekly report (email)</option><option>Manager phone call</option><option>In-store count sheet (photo)</option></select></div>
+          <button class="btn primary" style="width:100%;">Save entry → updates dashboard</button>
+        </div>
+        <div class="c8">
+          <div class="grid" style="margin-bottom:16px;">
+            <div class="card kpi c4" style="grid-column:span 4;"><div class="label">Claims (Meta, 30d)</div><div class="val">412</div><div class="delta up">↑ 18.9% vs prev</div></div>
+            <div class="card kpi c4" style="grid-column:span 4;"><div class="label">Redeemed (30d)</div><div class="val">137</div><div class="delta up">33.3% redemption rate</div></div>
+            <div class="card kpi c4" style="grid-column:span 4;"><div class="label">Cost / redemption</div><div class="val">$9.05</div><div class="delta up">↓ from $9.84 last period</div></div>
+          </div>
+          <div class="card">
+            <div class="cardhead"><div><h3>Cost per redemption — trend</h3><div class="cap">Per reporting period · lower is better</div></div></div>
+            <svg id="couponChart" viewBox="0 0 600 150" width="100%" height="150"></svg>
+          </div>
+        </div>
+        <div class="card c12">
+          <div class="cardhead"><div><h3>Redemption history</h3><div class="cap">Every period the client has reported</div></div></div>
+          <table>
+            <thead><tr><th>Period</th><th>Source</th><th class="num">Claims</th><th class="num">Redeemed</th><th class="num">Rate</th><th class="num">Spend</th><th class="num">Cost/redemption</th></tr></thead>
+            <tbody>
+              <tr><td class="metricname">May 28 – Jun 11</td><td style="color:var(--muted);">Biweekly email</td><td class="num">198</td><td class="num">64</td><td class="num">32.3%</td><td class="num">$571</td><td class="num">$8.92</td></tr>
+              <tr><td class="metricname">May 13 – May 27</td><td style="color:var(--muted);">Biweekly email</td><td class="num">214</td><td class="num">73</td><td class="num">34.1%</td><td class="num">$669</td><td class="num">$9.16</td></tr>
+              <tr><td class="metricname">Apr 28 – May 12</td><td style="color:var(--muted);">Manager call</td><td class="num">189</td><td class="num">58</td><td class="num">30.7%</td><td class="num">$571</td><td class="num">$9.84</td></tr>
+              <tr><td class="metricname">Apr 13 – Apr 27</td><td style="color:var(--muted);">Biweekly email</td><td class="num">176</td><td class="num">49</td><td class="num">27.8%</td><td class="num">$524</td><td class="num">$10.69</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: TEAM ============ -->
+    <div class="page" id="page-team">
+      <div class="grid">
+        <div class="card c7">
+          <div class="cardhead"><div><h3>Team &amp; co-workers</h3><div class="cap">Internal access · clients never log in (v1)</div></div>
+          <button class="btn primary" style="margin-left:auto;">+ Invite teammate</button></div>
+          <table>
+            <thead><tr><th>Member</th><th>Role</th><th>Access</th><th>Last active</th></tr></thead>
+            <tbody>
+              <tr><td class="metricname">Gonzalo Martínez<br><small style="color:var(--muted); font-weight:500;">gmartinez@topfloormarketing.net</small></td><td><span class="badge p2">Owner</span></td><td style="color:var(--muted);">Everything</td><td style="color:var(--muted);">Now</td></tr>
+              <tr><td class="metricname">Blanca Saborio<br><small style="color:var(--muted); font-weight:500;">Social Media Director</small></td><td><span class="badge run">Editor</span></td><td style="color:var(--muted);">All clients · coupons entry · exports</td><td style="color:var(--muted);">2h ago</td></tr>
+              <tr><td class="metricname">Jessica<br><small style="color:var(--muted); font-weight:500;">Reporting</small></td><td><span class="badge end">Viewer</span></td><td style="color:var(--muted);">All dashboards · read-only</td><td style="color:var(--muted);">Yesterday</td></tr>
+              <tr><td class="metricname">Luis Martinez<br><small style="color:var(--muted); font-weight:500;">Development</small></td><td><span class="badge pend">Developer</span></td><td style="color:var(--muted);">Sync, tokens, logs</td><td style="color:var(--muted);">3h ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card c5">
+          <div class="cardhead"><div><h3>Role permissions</h3><div class="cap">What each role can touch</div></div></div>
+          <div class="switchrow"><div class="k"><b>Editors can revoke share links</b><small>Blanca manages client access directly</small></div><div class="switch"></div></div>
+          <div class="switchrow"><div class="k"><b>Editors can enter coupon reports</b><small>Phase 2 offline data entry</small></div><div class="switch"></div></div>
+          <div class="switchrow"><div class="k"><b>Viewers see spend numbers</b><small>Off = hide budget columns from viewers</small></div><div class="switch"></div></div>
+          <div class="switchrow"><div class="k"><b>Notify owner on new unmapped campaign</b><small>Email when mapping queue grows</small></div><div class="switch"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: PLAN & BILLING ============ -->
+    <div class="page" id="page-billing">
+      <div class="grid">
+        <div class="card c12" style="border-color:var(--accent); border-style:dashed;">
+          <div class="cardhead" style="margin-bottom:0;">
+            <div><h3>Phase 3 preview — sell Pulse to clients</h3><div class="cap">Luis's play from the kickoff: clients log in, connect their own accounts, and pay for the reports they already love. Same productization path as AEO Watch.</div></div>
+            <span class="badge p2" style="margin-left:auto;">Phase 3</span>
+          </div>
+        </div>
+        <div class="card kpi c4"><div class="label">Current plan</div><div class="val">Internal</div><div class="delta" style="color:var(--muted);">$0 — TopFloor owns the stack</div></div>
+        <div class="card kpi c4"><div class="label">Infra cost this month</div><div class="val">$31</div><div class="delta up">vs $399/mo Databox Growth</div></div>
+        <div class="card kpi c4"><div class="label">Potential tenant revenue</div><div class="val">$1,300/mo</div><div class="delta up">if 7 active clients self-serve at avg $186</div></div>
+        <div class="c4"><div class="tier">
+          <div class="nm">Starter</div><div class="pr">$100<small>/mo</small></div>
+          <ul><li><b>1 location</b> dashboard</li><li>Paid + organic (FB/IG)</li><li>Monthly PDF snapshot</li><li>Live share link</li></ul>
+        </div></div>
+        <div class="c4"><div class="tier feature">
+          <div class="nm">Growth</div><div class="pr">$200<small>/mo</small></div>
+          <ul><li><b>Up to 3 locations</b></li><li>Coupon / offline tracking</li><li>Weekly snapshots + open tracking</li><li>Best-time + audience insights</li></ul>
+        </div></div>
+        <div class="c4"><div class="tier">
+          <div class="nm">Agency</div><div class="pr">$400<small>/mo</small></div>
+          <ul><li><b>Unlimited locations</b></li><li>Own branding (white-label)</li><li>AI monthly summaries</li><li>Client connects own Meta assets</li></ul>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: SETTINGS ============ -->
+    <div class="page" id="page-settings">
+      <div class="grid">
+        <div class="card c6">
+          <div class="cardhead"><div><h3>Branding</h3><div class="cap">Applies to every client dashboard and snapshot PDF</div></div></div>
+          <div class="field"><label>Agency name on dashboards</label><input value="TopFloor Marketing"></div>
+          <div class="field"><label>Logo</label><button class="minibtn" style="width:100%; padding:10px;">Upload logo (PNG/SVG)</button></div>
+          <div class="field"><label>Accent color</label>
+            <div class="swatches">
+              <div class="swatch sel" style="background:#635BFF;"></div>
+              <div class="swatch" style="background:#0052FF;"></div>
+              <div class="swatch" style="background:#0E2540;"></div>
+              <div class="swatch" style="background:#C9A227;"></div>
+              <div class="swatch" style="background:#0E8745;"></div>
+            </div>
+          </div>
+          <div class="switchrow"><div class="k"><b>Per-client brand override</b><small>Use the client's logo + color on their dashboard</small></div><div class="switch off"></div></div>
+        </div>
+        <div class="c6">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="cardhead"><div><h3>Data sources — Meta (v1: FB + IG only)</h3><div class="cap">One System User token · three Graph API surfaces</div></div></div>
+            <ul class="health">
+              <li><span class="k">Ad account (paid)</span><span class="v linkcell">act_2938102…</span></li>
+              <li><span class="k">FB Pages connected</span><span class="v ok">3 of 5 (Sterling, Aberdeen pending)</span></li>
+              <li><span class="k">IG Business accounts</span><span class="v ok">3 connected</span></li>
+              <li><span class="k">Business Manager</span><span class="v warn">Temporary BM ⚠ (recovery case open)</span></li>
+              <li><span class="k">Token scopes</span><span class="v" style="font-size:11px;">ads_read · pages_read_engagement · instagram_basic · instagram_manage_insights</span></li>
+              <li><span class="k">Attribution window</span><span class="v">7d click / 1d view — pinned</span></li>
+            </ul>
+            <button class="minibtn" style="margin-top:12px; width:100%;">Rotate token (run after main BM recovery + hardening)</button>
+          </div>
+          <div class="card">
+            <div class="cardhead"><div><h3>Sync</h3><div class="cap">Vercel Cron</div></div></div>
+            <div class="field"><label>Paid metrics frequency</label><select><option>Every hour (default)</option><option>Every 30 min</option><option>Every 6 hours</option></select></div>
+            <div class="field"><label>Organic post snapshots</label><select><option>Every 6 hours (default)</option><option>Hourly</option><option>Daily</option></select></div>
+            <div class="switchrow"><div class="k"><b>72h restatement re-pull (paid)</b><small>Keeps numbers matching Ads Manager</small></div><div class="switch"></div></div>
+            <div class="switchrow"><div class="k"><b>Alert on failed sync</b><small>Email Gonzo + Luis after 2 consecutive failures</small></div><div class="switch"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footnote"><b>Pulse v7 — full app mockup</b> · all pages · light mode · approved v6.1 design · fake-but-plausible data · spec: 07-TopFloor/live-client-reporting-platform.md</div>
+  </main>
+</div>
+
+<script>
+  const clicks30 = [98,112,91,84,118,142,156, 95,108,88,82,124,149,162, 92,103,85,79,116,138,151, 90,105,87,76,121,146,158, 116,112];
+  const prev30   = clicks30.map((v,i)=>Math.round(v*0.82 + (i%5)*2.2 - 3));
+  const spend30  = [38,42,35,31,44,52,57, 36,40,33,30,46,55,60, 35,38,31,29,43,51,56, 34,39,32,28,45,54,58, 37,31];
+  const folAdds  = [4,6,3,2,7,11,14, 5,6,4,3,9,12,15, 4,5,3,2,8,10,13, 4,6,3,2,9,12,14, 8,10];
+  const claims11 = [18,22,19,16,25,31,34, 21,24,20,34];
+  const ENG = {
+    likes:    clicks30.map(v=>Math.round(v*0.92)),
+    comments: clicks30.map(v=>Math.round(v*0.13)+3),
+    shares:   clicks30.map(v=>Math.round(v*0.09)+2),
+    saves:    clicks30.map(v=>Math.round(v*0.075)+1)
+  };
+  const RANGES = {
+    d30:{days:30, spend:1240, claims:412, eng:3318, cpr:9.05, kpis:[
+      ["Impressions","187.1K","+12.4%","up"],["Reach (paid)","64.3K","+9.1%","up"],["Link clicks","3,384","+21.6%","up"],
+      ["CTR","1.81%","+8.2%","up"],["CPC","$0.37","−11.3%","up"],["ER (organic)","4.6%","+0.4 pts","up"]]},
+    d14:{days:14, spend:588, claims:203, eng:1573, cpr:8.92, kpis:[
+      ["Impressions","89.6K","+9.7%","up"],["Reach (paid)","38.1K","+6.3%","up"],["Link clicks","1,648","+14.2%","up"],
+      ["CTR","1.84%","+4.0%","up"],["CPC","$0.36","−8.8%","up"],["ER (organic)","4.7%","+0.3 pts","up"]]},
+    mtd:{days:11, spend:452, claims:154, eng:1204, cpr:8.92, kpis:[
+      ["Impressions","68.9K","+8.1%","up"],["Reach (paid)","31.2K","+5.5%","up"],["Link clicks","1,261","+12.7%","up"],
+      ["CTR","1.83%","+3.4%","up"],["CPC","$0.36","−7.2%","up"],["ER (organic)","4.6%","+0.4 pts","up"]]}
+  };
+  let currentRange='d30';
+
+  function smoothPath(pts){
+    if(pts.length<3) return 'M'+pts.map(p=>p.join(' ')).join(' L');
+    let d=`M ${pts[0][0]} ${pts[0][1]}`;
+    for(let i=0;i<pts.length-1;i++){
+      const p0=pts[Math.max(0,i-1)], p1=pts[i], p2=pts[i+1], p3=pts[Math.min(pts.length-1,i+2)];
+      const c1=[p1[0]+(p2[0]-p0[0])/6, p1[1]+(p2[1]-p0[1])/6];
+      const c2=[p2[0]-(p3[0]-p1[0])/6, p2[1]-(p3[1]-p1[1])/6];
+      d+=` C ${c1[0].toFixed(1)} ${c1[1].toFixed(1)}, ${c2[0].toFixed(1)} ${c2[1].toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+    }
+    return d;
+  }
+  function countUp(id, target, fmt, ms=900){
+    const el=document.getElementById(id); if(!el) return; const t0=performance.now();
+    function tick(t){
+      const k=Math.min(1,(t-t0)/ms), e=1-Math.pow(1-k,3);
+      el.textContent=fmt(target*e);
+      if(k<1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  const fmtInt=v=>Math.round(v).toLocaleString('en-US');
+  const fmtUsd=v=>'$'+Math.round(v).toLocaleString('en-US');
+  const fmtUsd2=v=>'$'+v.toFixed(2);
+
+  function areaChart(targetId, cur, prv, W, H){
+    const el=document.getElementById(targetId); if(!el) return null;
+    const n=cur.length, padL=38, padR=12, padT=10, padB=26;
+    const iw=(W-padL-padR)/(n-1);
+    const all = prv? cur.concat(prv) : cur;
+    const max=Math.max(...all)*1.18;
+    const Y=v=>H-padB-(v/max)*(H-padT-padB);
+    const ptsC=cur.map((v,i)=>[padL+i*iw, Y(v)]);
+    const gid='g'+targetId;
+    let svg=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--chartfill-a)"/><stop offset="100%" stop-color="var(--chartfill-b)"/></linearGradient></defs>`;
+    for(let g=0;g<=3;g++){
+      const y=padT+(H-padT-padB)*g/3;
+      svg+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--line)" stroke-width="1"/>`;
+      svg+=`<text x="${padL-7}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${Math.round(max*(1-g/3))}</text>`;
+    }
+    svg+=`<path d="${smoothPath(ptsC)} L ${padL+(n-1)*iw} ${H-padB} L ${padL} ${H-padB} Z" fill="url(#${gid})" stroke="none"/>`;
+    if(prv){
+      const ptsP=prv.map((v,i)=>[padL+i*iw, Y(v)]);
+      svg+=`<path d="${smoothPath(ptsP)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 5" opacity=".65"/>`;
+    }
+    svg+=`<path d="${smoothPath(ptsC)}" fill="none" stroke="var(--accent)" stroke-width="2.6"/>`;
+    svg+=`<circle cx="${ptsC[n-1][0]}" cy="${ptsC[n-1][1]}" r="4.5" fill="var(--accent)" stroke="var(--card)" stroke-width="2"/>`;
+    const today=new Date(2026,5,11), step=Math.ceil(n/6);
+    for(let i=0;i<n;i+=step){
+      const d=new Date(today); d.setDate(d.getDate()-(n-1-i));
+      svg+=`<text x="${padL+i*iw}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--muted)">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</text>`;
+    }
+    el.innerHTML=svg;
+    return {n,padL,iw,cur,prv,Y,W,H};
+  }
+  function barChart(targetId, values, labels, W, H){
+    const el=document.getElementById(targetId); if(!el) return;
+    const padL=44, padR=10, padT=12, padB=26;
+    const iw=(W-padL-padR)/values.length;
+    const max=Math.max(...values)*1.25;
+    let svg='';
+    for(let g=0; g<=2; g++){
+      const y=padT+(H-padT-padB)*g/2;
+      svg+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--line)" stroke-width="1"/>`;
+    }
+    values.forEach((v,i)=>{
+      const bh=(v/max)*(H-padT-padB);
+      svg+=`<rect x="${padL+i*iw+iw*0.22}" y="${H-padB-bh}" width="${iw*0.56}" height="${bh}" rx="5" fill="var(--accent)" opacity="${i===values.length-1?1:0.5}"/>`;
+      svg+=`<text x="${padL+i*iw+iw/2}" y="${H-padB-bh-7}" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">$${v.toFixed(2)}</text>`;
+      svg+=`<text x="${padL+i*iw+iw/2}" y="${H-7}" text-anchor="middle" font-size="10" fill="var(--muted)">${labels[i]}</text>`;
+    });
+    el.innerHTML=svg;
+  }
+  function donut(id, segs, center, sub){
+    const el=document.getElementById(id); if(!el) return;
+    const C=2*Math.PI*48; let off=0;
+    let svg=`<circle cx="65" cy="65" r="48" fill="none" stroke="var(--gray-soft)" stroke-width="15"/>`;
+    segs.forEach(s=>{
+      const len=C*s.v;
+      svg+=`<circle cx="65" cy="65" r="48" fill="none" stroke="${s.c}" stroke-width="15"
+        stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 65 65)"/>`;
+      off+=len;
+    });
+    svg+=`<text x="65" y="61" text-anchor="middle" font-size="16" font-weight="600" fill="var(--ink)">${center}</text>
+          <text x="65" y="77" text-anchor="middle" font-size="9.5" fill="var(--muted)">${sub}</text>`;
+    el.innerHTML=svg;
+  }
+  function folChart(targetId){
+    const el=document.getElementById(targetId); if(!el) return;
+    const adds=folAdds, n=adds.length;
+    const W=560,H=200,padL=14,padR=48,padT=14,padB=14;
+    const iw=(W-padL-padR)/n;
+    const maxA=Math.max(...adds)*1.4;
+    let cum=8218; const cumArr=adds.map(v=>cum+=v);
+    const minC=8218, maxC=cumArr[n-1]*1.001;
+    const Ya=v=>H-padB-(v/maxA)*(H-padT-padB);
+    const Yc=v=>H-padB-((v-minC)/(maxC-minC))*(H-padT-padB)*0.9 - (H-padT-padB)*0.05;
+    let svg='';
+    adds.forEach((v,i)=>{
+      svg+=`<rect x="${padL+i*iw+iw*0.25}" y="${Ya(v)}" width="${iw*0.5}" height="${H-padB-Ya(v)}" rx="2.5" fill="var(--accent)" opacity=".4"/>`;
+    });
+    const pts=cumArr.map((v,i)=>[padL+i*iw+iw/2, Yc(v)]);
+    svg+=`<path d="${smoothPath(pts)}" fill="none" stroke="var(--teal)" stroke-width="2.6"/>`;
+    svg+=`<circle cx="${pts[n-1][0]}" cy="${pts[n-1][1]}" r="4.5" fill="var(--teal)" stroke="var(--card)" stroke-width="2"/>`;
+    svg+=`<text x="${pts[n-1][0]+8}" y="${pts[n-1][1]+4}" font-size="11.5" font-weight="600" fill="var(--teal)">8,432</text>`;
+    el.innerHTML=svg;
+  }
+  function heatmap(){
+    const el=document.getElementById('heat'); if(!el) return;
+    const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const cols=['6-9a','9-12','12-3p','3-6p','6-9p','9-12a'];
+    const data=[
+      [12,18,25,30,42,28],[14,20,28,34,48,30],[15,22,30,38,55,33],
+      [18,26,36,52,92,58],[20,28,40,56,100,64],[30,38,46,60,78,52],[26,34,42,50,62,40]
+    ];
+    let html='<div></div>'+cols.map(c=>`<div class="hcol">${c}</div>`).join('');
+    data.forEach((row,d)=>{
+      html+=`<div class="hlab">${days[d]}</div>`;
+      row.forEach((v,c)=>{
+        const best=(d===3&&c===4)||(d===4&&c===4);
+        html+=`<div class="cell ${best?'best':''}" style="opacity:${0.12+0.88*(v/100)};" title="${days[d]} ${cols[c]}: ${v}">${v}</div>`;
+      });
+    });
+    el.innerHTML=html;
+  }
+  function sparkSvg(kind, n){
+    const src = kind===2 ? spend30 : clicks30;
+    const data = src.slice(-n);
+    const w=78,h=26,max=Math.max(...data),min=Math.min(...data);
+    const pts=data.map((v,i)=>[(i/(data.length-1))*w, h-2-((v-min)/(max-min||1))*(h-6)]);
+    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${smoothPath(pts)}" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".85"/></svg>`;
+  }
+  function renderKpis(){
+    const r=RANGES[currentRange];
+    const grid=document.getElementById('kpiGrid'); if(!grid) return;
+    grid.innerHTML=r.kpis.map((k,i)=>`
+      <div class="card kpi c2 rv" style="animation-delay:${.16+i*.025}s; padding:14px 16px;">
+        <div class="label">${k[0]}</div><div class="val">${k[1]}</div>
+        <div class="delta ${k[3]}">${k[2]}</div><div class="sp">${sparkSvg(1, r.days)}</div>
+      </div>`).join('');
+  }
+
+  /* main chart + tooltip */
+  let chartGeom=null;
+  function drawMain(){
+    const r=RANGES[currentRange];
+    chartGeom = areaChart('chart', clicks30.slice(-r.days), prev30.slice(-r.days), 920, 210);
+  }
+  (function wireTooltip(){
+    const el=document.getElementById('chart'), tt=document.getElementById('tt');
+    el.addEventListener('mousemove',e=>{
+      if(!chartGeom) return;
+      const r=el.getBoundingClientRect();
+      const sx=(e.clientX-r.left)*(chartGeom.W/r.width);
+      let idx=Math.round((sx-chartGeom.padL)/chartGeom.iw);
+      idx=Math.max(0,Math.min(chartGeom.n-1,idx));
+      const today=new Date(2026,5,11); const d=new Date(today); d.setDate(d.getDate()-(chartGeom.n-1-idx));
+      tt.innerHTML=`<div class="tdate">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
+        Clicks: <b style="font-weight:600;">${chartGeom.cur[idx]}</b><br><span style="color:var(--muted)">Prev: ${chartGeom.prv[idx]}</span>`;
+      tt.style.display='block';
+      const px=((chartGeom.padL+idx*chartGeom.iw)/chartGeom.W)*r.width;
+      tt.style.left=Math.min(r.width-150, Math.max(0,px+12))+'px';
+      tt.style.top='30px';
+    });
+    el.addEventListener('mouseleave',()=>{ tt.style.display='none'; });
+  })();
+
+  let engMetric='likes', engMetric2='likes';
+  function setEng(m){
+    engMetric=m;
+    ['likes','comments','shares','saves'].forEach(x=>document.getElementById('eng-'+x).classList.toggle('active', x===m));
+    document.getElementById('engCap').textContent=`Daily ${m} · FB + IG combined · last 30 days`;
+    areaChart('engChart', ENG[m], null, 920, 210);
+  }
+  function setEng2(m){
+    engMetric2=m;
+    ['likes','comments','shares','saves'].forEach(x=>document.getElementById('eng2-'+x).classList.toggle('active', x===m));
+    document.getElementById('engCap2').textContent=`Daily ${m} · FB + IG · last 30 days`;
+    areaChart('engChart2', ENG[m], null, 920, 210);
+  }
+
+  function setRange(key){
+    currentRange=key;
+    ['r30','r14','rmtd'].forEach(id=>document.getElementById(id).classList.remove('active'));
+    document.getElementById(({d30:'r30',d14:'r14',mtd:'rmtd'})[key]).classList.add('active');
+    const r=RANGES[key];
+    countUp('cu-spend', r.spend, fmtUsd);
+    countUp('cu-claims', r.claims, fmtInt);
+    countUp('cu-eng', r.eng, fmtInt);
+    countUp('cu-cpr', r.cpr, fmtUsd2);
+    renderKpis(); drawMain();
+  }
+
+  const PAGES={overview:['Overview','Command Center — KPOT Fairfax',true],
+    content:['Content Performance','Content Performance — Organic (FB + IG)',true],
+    audience:['Audience Insights','Audience Insights — KPOT Fairfax',false],
+    engagement:['Engagement Tracker','Engagement Tracker — KPOT Fairfax',true],
+    campaigns:['Campaign Reports','Paid Campaigns — KPOT Fairfax',false],
+    exports:['Export Center','Export Center — Snapshots & Reports',false],
+    clients:['Business Suite','Clients & Mapping — Admin',false],
+    coupons:['Business Suite','Coupons & Offline Results',false],
+    team:['Business Suite','Team & Co-Workers',false],
+    billing:['Business Suite','Plan & Billing — Productization Preview',false],
+    settings:['Business Suite','Settings',false]};
+  function showPage(p){
+    document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+    document.getElementById('page-'+p).classList.add('active');
+    Object.keys(PAGES).forEach(x=>{
+      const el=document.getElementById('nav-'+x); if(el) el.classList.toggle('active', x===p);
+    });
+    document.getElementById('crumbSect').textContent=PAGES[p][0];
+    document.getElementById('pageTitle').textContent=PAGES[p][1];
+    document.getElementById('rangeSeg').style.display=PAGES[p][2]?'flex':'none';
+    drawAll();
+  }
+
+  function drawAll(){
+    drawMain(); renderKpis();
+    donut('donut1',[{v:.61,c:'#635BFF'},{v:.39,c:'#00B8AC'}],'105K','total reach');
+    donut('donut2',[{v:.81,c:'#E84393'},{v:.19,c:'#635BFF'}],'3,318','engagement');
+    donut('donut3',[{v:.62,c:'#635BFF'},{v:.38,c:'#00B8AC'}],'8,432','followers');
+    donut('donut4',[{v:.74,c:'#635BFF'},{v:.10,c:'#00B8AC'},{v:.09,c:'#E84393'},{v:.07,c:'#D4A017'}],'3,318','30 days');
+    folChart('folChart'); folChart('folChart2'); heatmap();
+    areaChart('engChart', ENG[engMetric], null, 920, 210);
+    areaChart('engChart2', ENG[engMetric2], null, 920, 210);
+    areaChart('campChart', claims11, null, 1000, 180);
+    barChart('couponChart', [10.69, 9.84, 9.16, 8.92], ['Apr 13–27','Apr 28–May 12','May 13–27','May 28–Jun 11'], 600, 150);
+    document.querySelectorAll('.spark').forEach(td=>{ td.innerHTML = sparkSvg(parseInt(td.dataset.kind), 30); });
+    requestAnimationFrame(()=>setTimeout(()=>{
+      document.querySelectorAll('.fbar,.fill').forEach(el=>{ if(el.dataset.w) el.style.width = el.dataset.w + '%'; });
+    },80));
+  }
+
+  setRange('d30');
+  drawAll();
+  requestAnimationFrame(()=>setTimeout(()=>{
+    document.getElementById('scoreArc').style.strokeDashoffset = 377*(1-87/100);
+    countUp('scoreNum', 87, v=>Math.round(v), 1300);
+  },150));
+</script>
+</body>
+</html>
